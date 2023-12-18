@@ -27,30 +27,28 @@ def setColor(device,color):
     detachDevice(device)
 
     packet1 = "\x05\x11\x00\x00\x00\x00"
-    #print(len(packet1))
-    #packet1 = packet1
     res = device.ctrl_transfer(0x21, 0x09, 0x0305, 1, packet1)
-    #print(res)
+
 
     #Get current config
     res = device.ctrl_transfer(0xa1, 0x01, 0x0304, 1, 520)
 
 
-    #wanna write ig
+    #New config
     res[3] = 0x7b
 
-    #DPI Colors
+    #DPI Colors (Mouse wheel and logo)
     for i in range(6):
-        res[29+i*3] = color[0]
-        res[30+i*3] = color[1]
-        res[31+i*3] = color[2]
+        res[29+i*3] = color[0] #R
+        res[30+i*3] = color[1] #G
+        res[31+i*3] = color[2] #B
 
     #Ring Color
-    res[57] = color[0]
-    res[58] = color[1]
-    res[59] = color[2]
+    res[57] = color[0] #R
+    res[58] = color[1] #G
+    res[59] = color[2] #B
 
-    #Append zeros to reach the size of 520bytes
+    #Append zeros to reach the size of 520 bytes
     for i in range(520-len(res)):
         res.append(0x00)
 
@@ -63,13 +61,14 @@ if __name__ == "__main__":
     color = sys.argv[1]
 
     if len(color) != 6:
-        print("Give 6 digit hex color")
+        print("Enter 6 digit hex color like ff06f8")
         exit()
 
     device = usb.core.find(idVendor=0x258a, idProduct=0x0029)
     if device is None:
+        print('Device not found')
         exit()
-        raise RuntimeError('Device not found')
+        
     
     color = (int(color[0:2],16),int(color[2:4],16),int(color[4:6],16))
     setColor(device,color)
